@@ -5,6 +5,7 @@ import Crumbs from '../components/Crumbs'
 import StatusBadge from '../components/StatusBadge'
 import { fmt } from '../lib/fields'
 import { useAuth } from '../auth'
+import PhotoGallery from '../components/PhotoGallery'
 
 export default function Equipment() {
   const { id } = useParams()
@@ -12,12 +13,15 @@ export default function Equipment() {
   const [e, setE] = useState(null)
   const [err, setErr] = useState('')
   const [showEmpty, setShowEmpty] = useState(false)
+  const [photos, setPhotos] = useState([])
 
   useEffect(() => {
     supabase.from('equipment')
       .select('*, categories(*), buildings(id, name, stations(id, name))')
       .eq('id', id).single()
       .then(({ data, error }) => { if (error) setErr(error.message); setE(data) })
+    supabase.from('equipment_photos').select('*').eq('equipment_id', id).order('created_at')
+      .then(({ data }) => setPhotos(data || []))
   }, [id])
 
   if (err) return <p className="error">{err}</p>
@@ -46,6 +50,8 @@ export default function Equipment() {
           {isAdmin && <Link className="btn" to={`/admin/equipment/${e.id}`}>แก้ไข</Link>}
         </div>
       </div>
+
+      <PhotoGallery photos={photos} />
 
       <label className="small toggle no-print">
         <input type="checkbox" checked={showEmpty} onChange={x => setShowEmpty(x.target.checked)} /> แสดงช่องที่ยังไม่มีข้อมูล

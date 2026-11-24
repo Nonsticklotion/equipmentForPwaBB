@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase, STATUSES } from '../../supabase'
 import { allFields } from '../../lib/fields'
+import { deleteAllPhotos } from '../../lib/photos'
+import PhotoManager from '../../components/PhotoManager'
 
 const blank = { building_id: '', category_id: '', tag: '', name: '', status: 'ใช้งาน', note: '', specs: {} }
 
@@ -66,11 +68,13 @@ export default function EquipmentForm() {
       : await supabase.from('equipment').insert(payload).select('id').single()
     setBusy(false)
     if (res.error) return setErr(res.error.message)
-    nav(`/equipment/${res.data.id}`)
+    // เพิ่มใหม่ -> ไปหน้าแก้ไขเพื่ออัปรูปต่อ, แก้ไข -> ไปหน้ารายละเอียด
+    nav(id ? `/equipment/${res.data.id}` : `/admin/equipment/${res.data.id}?new=1`)
   }
 
   async function del() {
-    if (!confirm(`ลบ "${form.tag || form.name}" ถาวร?`)) return
+    if (!confirm(`ลบ "${form.tag || form.name}" และรูปทั้งหมดถาวร?`)) return
+    await deleteAllPhotos(id)
     const { error } = await supabase.from('equipment').delete().eq('id', id)
     if (error) return setErr(error.message)
     nav('/admin')
@@ -88,6 +92,12 @@ export default function EquipmentForm() {
           </div>
         )}
       </div>
+
+      {params.get('new') && (
+        <p className="notice">บันทึกอุปกรณ์แล้ว — เพิ่มรูป Nameplate / รหัสเครื่อง ได้ด้านล่าง หรือ <Link to={`/equipment/${id}`}>ดูหน้ารายละเอียด</Link></p>
+      )}
+      {id && <PhotoManager equipmentId={Number(id)} />}
+      {!id && <p className="muted small">💡 เพิ่มรูปได้หลังกดบันทึก</p>}
 
       <form onSubmit={save} className="form">
         <section className="panel">
