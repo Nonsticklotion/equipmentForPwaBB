@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase, STATUSES } from '../../supabase'
 import { allFields } from '../../lib/fields'
-import { deleteAllPhotos } from '../../lib/photos'
+import { deleteAllPhotos, uploadPhoto } from '../../lib/photos'
 import PhotoManager from '../../components/PhotoManager'
+import PendingPhotos from '../../components/PendingPhotos'
 import { useAuth } from '../../auth'
 
 const blank = { building_id: '', category_id: '', tag: '', name: '', status: 'ใช้งาน', note: '', specs: {} }
@@ -19,6 +20,8 @@ export default function EquipmentForm() {
   const [form, setForm] = useState(null)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState([])   // รูปที่เลือกไว้ตอนเพิ่มใหม่
+  const [progress, setProgress] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -70,10 +73,27 @@ export default function EquipmentForm() {
     const res = id
       ? await supabase.from('equipment').update(payload).eq('id', id).select('id').single()
       : await supabase.from('equipment').insert(payload).select('id').single()
+    if (res.error) { setBusy(false); return setErr(res.error.message) }
+    const newId = res.data.id
+
+    // เพิ่มใหม่ + มีรูปที่เลือกไว้ -> อัปต่อทันที
+    if (!id && pending.length) {
+      const failed = []
+      for (let i = 0; i < pending.length; i++) {
+        setProgress(`กำลังอัปรูป ${i + 1}/${pending.length}…`)
+        try { await uploadPhoto(newId, pending[i].kind, pending[i].file) } catch { failed.push(pending[i].file.name) }
+      }
+      setProgress('')
+      setBusy(false)
+      if (failed.length) {
+        alert(`บันทึกอุปกรณ์แล้ว แต่อัปรูปไม่สำเร็จ ${failed.length} รูป:\n${failed.join('\n')}\n\nเพิ่มใหม่ได้ในหน้าแก้ไข`)
+        return nav(`/admin/equipment/${newId}`)
+      }
+      return nav(`/equipment/${newId}`)
+    }
     setBusy(false)
-    if (res.error) return setErr(res.error.message)
-    // เพิ่มใหม่ -> ไปหน้าแก้ไขเพื่ออัปรูปต่อ, แก้ไข -> ไปหน้ารายละเอียด
-    nav(id ? `/equipment/${res.data.id}` : `/admin/equipment/${res.data.id}?new=1`)
+    // เพิ่มใหม่ไม่มีรูป -> ไปหน้าแก้ไข (เพิ่มรูปต่อได้), แก้ไข -> ไปหน้ารายละเอียด
+    nav(id ? `/equipment/${newId}` : `/admin/equipment/${newId}?new=1`)
   }
 
   async function del() {
@@ -101,7 +121,7 @@ export default function EquipmentForm() {
         <p className="notice">บันทึกอุปกรณ์แล้ว — เพิ่มรูป Nameplate / รหัสเครื่อง ได้ด้านล่าง หรือ <Link to={`/equipment/${id}`}>ดูหน้ารายละเอียด</Link></p>
       )}
       {id && <PhotoManager equipmentId={Number(id)} />}
-      {!id && <p className="muted small">💡 เพิ่มรูปได้หลังกดบันทึก</p>}
+
 
       <form onSubmit={save} className="form">
         <section className="panel">
@@ -149,13 +169,15 @@ export default function EquipmentForm() {
           </section>
         ))}
 
+        {!id && <PendingPhotos value={pending} onChange={setPending} disabled={busy} />}
+
         <section className="panel">
           <label className="full">หมายเหตุ<textarea rows={3} value={form.note || ''} onChange={e => set({ note: e.target.value })} /></label>
         </section>
 
         {err && <p className="error">{err}</p>}
         <div className="actions sticky-actions">
-          <button className="btn" disabled={busy}>{busy ? 'กำลังบันทึก…' : 'บันทึก'}</button>
+          <button className="btn" disabled={busy}>{busy ? (progress || 'กำลังบันทึก…') : pending.length ? `บันทึก + อัปรูป ${pending.length} รูป` : 'บันทึก'}</button>
           <button type="button" className="btn ghost" onClick={() => nav(-1)}>ยกเลิก</button>
         </div>
       </form>

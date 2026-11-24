@@ -10,6 +10,22 @@ export default function Layout() {
   const nav = useNavigate()
   const loc = useLocation()
 
+  // ติดตั้งเป็นแอป (Android: ปุ่มติดตั้ง, iPhone: แนะนำวิธี)
+  const [installEvt, setInstallEvt] = useState(null)
+  const standalone = typeof window !== 'undefined' &&
+    (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone)
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  useEffect(() => {
+    const h = e => { e.preventDefault(); setInstallEvt(e) }
+    window.addEventListener('beforeinstallprompt', h)
+    return () => window.removeEventListener('beforeinstallprompt', h)
+  }, [])
+  async function install() {
+    if (installEvt) { installEvt.prompt(); await installEvt.userChoice; setInstallEvt(null) }
+    else if (isIOS) alert('ติดตั้งบน iPhone/iPad:\n1. เปิดเว็บนี้ด้วย Safari\n2. กดปุ่มแชร์ (สี่เหลี่ยมมีลูกศรขึ้น)\n3. เลือก "เพิ่มไปยังหน้าจอโฮม"')
+  }
+  const canInstall = !standalone && (installEvt || isIOS)
+
   // ปิดเมนูเมื่อเปลี่ยนหน้า
   useEffect(() => { setOpen(false) }, [loc.pathname, loc.search])
 
@@ -44,6 +60,7 @@ export default function Layout() {
       {isAdmin && <NavLink to="/admin/backup">💾 Backup</NavLink>}
       {user && <NavLink to="/account">👤 บัญชีของฉัน</NavLink>}
       {user && <NavLink to="/reset-password">🔑 เปลี่ยนรหัสผ่าน</NavLink>}
+      {canInstall && <button className="link" onClick={install}>📲 ติดตั้งเป็นแอป</button>}
       {user
         ? <button className="link" onClick={() => supabase.auth.signOut()}>🚪 ออกจากระบบ</button>
         : <NavLink to="/login">🔓 เข้าสู่ระบบ</NavLink>}
