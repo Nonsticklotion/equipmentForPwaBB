@@ -23,6 +23,12 @@
 | 🧩 **เพิ่มหมวดได้เอง** | สร้างหมวดใหม่และกำหนดช่องข้อมูลผ่านหน้าเว็บ ไม่ต้องแก้โค้ด |
 | 🔍 **ค้นหา** | รหัส, ชื่อ, ยี่ห้อ, Serial No. |
 | 🔐 **ระบบแอดมิน** | ล็อกอิน, ลืมรหัสผ่าน, เปลี่ยนรหัสผ่าน, สิทธิ์แก้ไขเฉพาะแอดมิน (RLS) |
+| 📷 **รูปภาพ** | Nameplate, รหัสเครื่อง, รูปอุปกรณ์ (ย่อขนาดอัตโนมัติ) |
+| 🔧 **ประวัติซ่อมบำรุง** | บันทึก PM/ซ่อม/ตรวจวัด พร้อมกราฟแนวโน้ม IR, กระแส, Vibration |
+| 🏷️ **QR Code** | สแกนเปิดหน้าอุปกรณ์ + พิมพ์สติกเกอร์ทีละหลายป้าย |
+| 📊 **Export** | Excel (แยกชีตตามหมวด) และ PDF สำหรับพิมพ์ |
+| 💾 **Backup** | ดาวน์โหลด/กู้คืนข้อมูลทั้งหมดเป็น JSON |
+| ⏰ **Keep-alive** | Cloudflare Cron ปลุก Supabase ทุกวัน กันโปรเจกต์ถูกหยุด |
 | 🖨️ **พิมพ์** | หน้ารายละเอียดอุปกรณ์จัดหน้าสำหรับพิมพ์ |
 
 ---
@@ -32,7 +38,7 @@
 ### 1. ตั้งค่า Supabase
 
 1. สร้างโปรเจกต์ที่ [supabase.com](https://supabase.com)
-2. **SQL Editor** → วางไฟล์ [`supabase/schema.sql`](supabase/schema.sql) ทั้งไฟล์ → **Run**
+2. **SQL Editor** → รันทีละไฟล์ตามลำดับ: [`schema.sql`](supabase/schema.sql) → [`photos.sql`](supabase/photos.sql) → [`v2.sql`](supabase/v2.sql)
 3. **Authentication → Users → Add user** (ติ๊ก *Auto Confirm User*)
 4. ตั้งเป็นแอดมิน:
    ```sql
@@ -88,21 +94,29 @@ erDiagram
   stations   ||--o{ buildings : "มี"
   buildings  ||--o{ equipment : "มี"
   categories ||--o{ equipment : "กำหนดชนิด"
-  stations   { bigint id PK
-               text name
-               text code }
-  buildings  { bigint id PK
-               bigint station_id FK
-               text name }
-  categories { bigint id PK
-               text name
-               jsonb field_schema }
-  equipment  { bigint id PK
-               bigint building_id FK
-               bigint category_id FK
-               text tag
-               text status
-               jsonb specs }
+  stations {
+    bigint id PK
+    text name
+    text code
+  }
+  buildings {
+    bigint id PK
+    bigint station_id FK
+    text name
+  }
+  categories {
+    bigint id PK
+    text name
+    jsonb field_schema
+  }
+  equipment {
+    bigint id PK
+    bigint building_id FK
+    bigint category_id FK
+    text tag
+    text status
+    jsonb specs
+  }
 ```
 
 | ตาราง | หน้าที่ |

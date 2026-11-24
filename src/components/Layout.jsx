@@ -39,6 +39,7 @@ export default function Layout() {
       {isAdmin && <NavLink to="/admin" end>🛠️ จัดการข้อมูล</NavLink>}
       {isAdmin && <NavLink to="/admin/stations">🏢 สถานี / อาคาร</NavLink>}
       {isAdmin && <NavLink to="/admin/categories">🧩 หมวดอุปกรณ์</NavLink>}
+      {isAdmin && <NavLink to="/admin/backup">💾 Backup</NavLink>}
       {user && <NavLink to="/reset-password">🔑 เปลี่ยนรหัสผ่าน</NavLink>}
       {user
         ? <button className="link" onClick={() => supabase.auth.signOut()}>🚪 ออกจากระบบ</button>

@@ -6,6 +6,8 @@ import StatusBadge from '../components/StatusBadge'
 import { fmt } from '../lib/fields'
 import { useAuth } from '../auth'
 import PhotoGallery from '../components/PhotoGallery'
+import QrCard from '../components/QrCard'
+import MaintenanceLog from '../components/MaintenanceLog'
 
 export default function Equipment() {
   const { id } = useParams()
@@ -85,6 +87,9 @@ export default function Equipment() {
           </section>
         )}
       </div>
+      <MaintenanceLog equipmentId={e.id} />
+      <QrCard id={e.id} tag={e.tag} />
+
       <p className="muted small">อัปเดตล่าสุด {new Date(e.updated_at).toLocaleString('th-TH')}</p>
     </>
   )

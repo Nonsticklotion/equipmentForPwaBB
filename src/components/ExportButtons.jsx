@@ -23,6 +23,7 @@ export default function ExportButtons({ filter = {}, filename = 'equipment' }) {
     <span className="actions no-print">
       <button className="btn ghost sm" onClick={onExcel} disabled={busy}>{busy ? 'กำลังสร้าง…' : '📊 Excel'}</button>
       <Link className="btn ghost sm" to={`/report${qs ? '?' + qs : ''}`}>📄 PDF / พิมพ์</Link>
+      <Link className="btn ghost sm" to={`/labels${qs ? '?' + qs : ''}`}>🏷️ สติกเกอร์ QR</Link>
     </span>
   )
 }

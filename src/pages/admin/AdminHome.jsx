@@ -34,6 +34,7 @@ export default function AdminHome() {
         <div className="actions">
           <Link className="btn ghost" to="/admin/stations">สถานี / อาคาร</Link>
           <Link className="btn ghost" to="/admin/categories">หมวดอุปกรณ์</Link>
+          <Link className="btn ghost" to="/admin/backup">💾 Backup</Link>
           <Link className="btn" to="/admin/equipment/new">+ เพิ่มอุปกรณ์</Link>
         </div>
       </div>
