@@ -1,8 +1,16 @@
 {
   "name": "equipmentforpwabb",
   "compatibility_date": "2026-11-01",
+  "main": "./worker/index.js",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "single-page-application"
-  }
+  },
+  // ปลุก Supabase ทุกวัน 03:00 น. เวลาไทย (20:00 UTC)
+  "triggers": {
+    "crons": ["0 20 * * *"]
+  },
+  // เก็บตัวแปรที่ตั้งใน Dashboard ไว้ ไม่ให้ deploy ทับ
+  "keep_vars": true
 }

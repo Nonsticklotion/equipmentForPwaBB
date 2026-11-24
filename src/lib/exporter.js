@@ -1,5 +1,5 @@
 import { supabase } from '../supabase'
-import { allFields, label } from './fields'
+import { allFields, listFields, fmt, label } from './fields'
 
 // ดึงอุปกรณ์ตามตัวกรอง (station / building / category)
 export async function fetchForExport({ station, building, cat } = {}) {
@@ -34,21 +34,41 @@ export async function exportExcel({ rows, cats }, filename = 'equipment') {
   const wb = XLSX.utils.book_new()
   const used = new Set()
 
-  // ชีตสรุป
+  const catOf = r => cats.find(x => x.id === r.category_id)
+
+  // ชีต 1: รายการอุปกรณ์ทั้งหมด (คอลัมน์หลัก + สเปกสำคัญ)
+  const keyCol = r => {
+    const c = catOf(r)
+    return listFields(c?.field_schema)
+      .map(f => {
+        const v = r.specs?.[f.key]
+        return v === undefined || v === null || v === '' ? null : `${f.label} ${fmt(f, v)}${f.unit ? ' ' + f.unit : ''}`
+      }).filter(Boolean).join(' · ')
+  }
+  const all = [['ลำดับ', 'สถานี', 'อาคาร', 'หมวด', 'รหัส', 'ชื่อ', 'สถานะ', 'สเปกหลัก', 'หมายเหตุ']]
+  rows.forEach((r, i) => all.push([
+    i + 1, r.buildings.stations.name, r.buildings.name, catOf(r)?.name || '-',
+    r.tag || '', r.name, r.status, keyCol(r), r.note || '',
+  ]))
+  const wsAll = XLSX.utils.aoa_to_sheet(all)
+  wsAll['!cols'] = [{ wch: 6 }, { wch: 24 }, { wch: 18 }, { wch: 20 }, { wch: 12 }, { wch: 30 }, { wch: 9 }, { wch: 60 }, { wch: 30 }]
+  wsAll['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: all[0].length - 1 } }) }
+  XLSX.utils.book_append_sheet(wb, wsAll, sheetName('รายการอุปกรณ์', used))
+
+  // ชีต 2: สรุปจำนวน
   const summary = [['สถานี', 'อาคาร', 'หมวด', 'จำนวน']]
   const count = {}
   rows.forEach(r => {
-    const c = cats.find(x => x.id === r.category_id)?.name || '-'
-    const k = [r.buildings.stations.name, r.buildings.name, c].join('\u0001')
+    const k = [r.buildings.stations.name, r.buildings.name, catOf(r)?.name || '-'].join('\u0001')
     count[k] = (count[k] || 0) + 1
   })
   Object.entries(count).forEach(([k, n]) => summary.push([...k.split('\u0001'), n]))
   summary.push([], ['รวมทั้งหมด', '', '', rows.length], [], ['ออกรายงานเมื่อ', new Date().toLocaleString('th-TH')])
   const ws0 = XLSX.utils.aoa_to_sheet(summary)
   ws0['!cols'] = [{ wch: 28 }, { wch: 24 }, { wch: 24 }, { wch: 10 }]
-  XLSX.utils.book_append_sheet(wb, ws0, sheetName('สรุป', used))
+  XLSX.utils.book_append_sheet(wb, ws0, sheetName('สรุปจำนวน', used))
 
-  // ชีตละหมวด
+  // ชีต 3+: รายละเอียดครบทุกช่อง แยกตามหมวด
   for (const c of cats) {
     const list = rows.filter(r => r.category_id === c.id)
     if (!list.length) continue
@@ -60,12 +80,12 @@ export async function exportExcel({ rows, cats }, filename = 'equipment') {
         const v = r.specs?.[f.key]
         if (v === undefined || v === null || v === '') return ''
         if (f.type === 'number') return Number(v)
-        if (f.type === 'date') return new Date(v)
+        if (f.type === 'date') return fmt(f, v)
         return v
       }),
       r.note || '',
     ])
-    const ws = XLSX.utils.aoa_to_sheet([head, ...data], { cellDates: true, dateNF: 'dd/mm/yyyy' })
+    const ws = XLSX.utils.aoa_to_sheet([head, ...data])
     ws['!cols'] = head.map((h, i) => ({ wch: i < 4 ? 18 : Math.min(Math.max(String(h).length + 2, 10), 30) }))
     ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: data.length, c: head.length - 1 } }) }
     ws['!freeze'] = { xSplit: 4, ySplit: 1 }
