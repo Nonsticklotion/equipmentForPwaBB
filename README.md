@@ -27,6 +27,9 @@
 | 🔧 **ประวัติซ่อมบำรุง** | บันทึก PM/ซ่อม/ตรวจวัด พร้อมกราฟแนวโน้ม IR, กระแส, Vibration |
 | 🏷️ **QR Code** | สแกนเปิดหน้าอุปกรณ์ + พิมพ์สติกเกอร์ทีละหลายป้าย |
 | 📊 **Export** | Excel (แยกชีตตามหมวด) และ PDF สำหรับพิมพ์ |
+| 📈 **Dashboard** | สรุปจำนวนตามสถานะ, kW / kVA ต่อสถานี, เครื่องที่ต้องติดตาม |
+| 👥 **สิทธิ์รายสถานี** | แอดมิน / ผู้ดูแลสถานี (แก้ได้เฉพาะสถานีที่ได้รับมอบหมาย) / ผู้ใช้ |
+| 📜 **ประวัติการแก้ไข** | บันทึกอัตโนมัติ ใคร แก้อะไร เมื่อไร (ค่าเดิม → ค่าใหม่) |
 | 💾 **Backup** | ดาวน์โหลด/กู้คืนข้อมูลทั้งหมดเป็น JSON |
 | ⏰ **Keep-alive** | Cloudflare Cron ปลุก Supabase ทุกวัน กันโปรเจกต์ถูกหยุด |
 | 🖨️ **พิมพ์** | หน้ารายละเอียดอุปกรณ์จัดหน้าสำหรับพิมพ์ |
@@ -38,7 +41,7 @@
 ### 1. ตั้งค่า Supabase
 
 1. สร้างโปรเจกต์ที่ [supabase.com](https://supabase.com)
-2. **SQL Editor** → รันทีละไฟล์ตามลำดับ: [`schema.sql`](supabase/schema.sql) → [`photos.sql`](supabase/photos.sql) → [`v2.sql`](supabase/v2.sql)
+2. **SQL Editor** → รันทีละไฟล์ตามลำดับ: [`schema.sql`](supabase/schema.sql) → [`photos.sql`](supabase/photos.sql) → [`v2.sql`](supabase/v2.sql) → [`v3.sql`](supabase/v3.sql)
 3. **Authentication → Users → Add user** (ติ๊ก *Auto Confirm User*)
 4. ตั้งเป็นแอดมิน:
    ```sql

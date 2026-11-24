@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
-import { useAuth } from '../auth'
 
 const KINDS = ['PM', 'ตรวจวัด', 'ซ่อม', 'Overhaul', 'พันขดลวด', 'เปลี่ยนอะไหล่', 'อื่นๆ']
 const METRICS = [
@@ -14,8 +13,8 @@ const blank = () => ({ log_date: today(), kind: 'PM', title: '', detail: '', ir_
 const thDate = d => new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })
 const num = v => (v === null || v === undefined || v === '' ? '–' : Number(v).toLocaleString('th-TH', { maximumFractionDigits: 2 }))
 
-export default function MaintenanceLog({ equipmentId }) {
-  const { isAdmin } = useAuth()
+export default function MaintenanceLog({ equipmentId, editable }) {
+  const isAdmin = editable
   const [logs, setLogs] = useState(null)
   const [form, setForm] = useState(null)      // null = ปิดฟอร์ม
   const [open, setOpen] = useState(null)      // id ที่ขยายรายละเอียด

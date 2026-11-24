@@ -8,10 +8,11 @@ import { useAuth } from '../auth'
 import PhotoGallery from '../components/PhotoGallery'
 import QrCard from '../components/QrCard'
 import MaintenanceLog from '../components/MaintenanceLog'
+import AuditList from '../components/AuditList'
 
 export default function Equipment() {
   const { id } = useParams()
-  const { isAdmin } = useAuth()
+  const { canEdit } = useAuth()
   const [e, setE] = useState(null)
   const [err, setErr] = useState('')
   const [showEmpty, setShowEmpty] = useState(false)
@@ -49,7 +50,7 @@ export default function Equipment() {
         </div>
         <div className="actions">
           <button className="btn ghost" onClick={() => window.print()}>พิมพ์</button>
-          {isAdmin && <Link className="btn" to={`/admin/equipment/${e.id}`}>แก้ไข</Link>}
+          {canEdit(st.id) && <Link className="btn" to={`/admin/equipment/${e.id}`}>แก้ไข</Link>}
         </div>
       </div>
 
@@ -87,8 +88,9 @@ export default function Equipment() {
           </section>
         )}
       </div>
-      <MaintenanceLog equipmentId={e.id} />
+      <MaintenanceLog equipmentId={e.id} editable={canEdit(st.id)} />
       <QrCard id={e.id} tag={e.tag} />
+      {canEdit(st.id) && <AuditList filter={{ equipment_id: e.id }} title="ประวัติการแก้ไขข้อมูล" collapsible />}
 
       <p className="muted small">อัปเดตล่าสุด {new Date(e.updated_at).toLocaleString('th-TH')}</p>
     </>

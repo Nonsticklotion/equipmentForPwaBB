@@ -1,10 +1,10 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from '../auth'
+import { useAuth, ROLE_LABEL } from '../auth'
 import { supabase } from '../supabase'
 
 export default function Layout() {
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, canManage, role, displayName } = useAuth()
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)    // เมนูด้านข้าง (มือถือ)
   const nav = useNavigate()
@@ -28,18 +28,21 @@ export default function Layout() {
 
   const who = (
     <span className="who" title={user?.email || 'ยังไม่ได้เข้าสู่ระบบ'}>
-      <span className="who-name">👤 {user ? user.email.split('@')[0] : 'Guest'}</span>
-      <span className={`role ${isAdmin ? 'admin' : ''}`}>{user ? (isAdmin ? 'แอดมิน' : 'ผู้ใช้') : 'ผู้เยี่ยมชม'}</span>
+      <span className="who-name">👤 {displayName}</span>
+      <span className={`role ${role}`}>{user ? ROLE_LABEL[role] : 'ผู้เยี่ยมชม'}</span>
     </span>
   )
 
   const links = (
     <>
       <NavLink to="/" end>🏭 สถานีทั้งหมด</NavLink>
-      {isAdmin && <NavLink to="/admin" end>🛠️ จัดการข้อมูล</NavLink>}
-      {isAdmin && <NavLink to="/admin/stations">🏢 สถานี / อาคาร</NavLink>}
+      {canManage && <NavLink to="/admin" end>🛠️ จัดการข้อมูล</NavLink>}
+      {canManage && <NavLink to="/admin/stations">🏢 สถานี / อาคาร</NavLink>}
       {isAdmin && <NavLink to="/admin/categories">🧩 หมวดอุปกรณ์</NavLink>}
+      {isAdmin && <NavLink to="/admin/users">👥 ผู้ใช้ / สิทธิ์</NavLink>}
+      {canManage && <NavLink to="/admin/audit">📜 ประวัติการแก้ไข</NavLink>}
       {isAdmin && <NavLink to="/admin/backup">💾 Backup</NavLink>}
+      {user && <NavLink to="/account">👤 บัญชีของฉัน</NavLink>}
       {user && <NavLink to="/reset-password">🔑 เปลี่ยนรหัสผ่าน</NavLink>}
       {user
         ? <button className="link" onClick={() => supabase.auth.signOut()}>🚪 ออกจากระบบ</button>
@@ -57,8 +60,8 @@ export default function Layout() {
         </form>
         <nav className="topnav">
           {who}
-          {isAdmin && <NavLink to="/admin">จัดการข้อมูล</NavLink>}
-          {user && <NavLink to="/reset-password">เปลี่ยนรหัสผ่าน</NavLink>}
+          {canManage && <NavLink to="/admin">จัดการข้อมูล</NavLink>}
+          {user && <NavLink to="/account">บัญชีของฉัน</NavLink>}
           {user
             ? <button className="link" onClick={() => supabase.auth.signOut()}>ออกจากระบบ</button>
             : <NavLink to="/login">เข้าสู่ระบบ</NavLink>}

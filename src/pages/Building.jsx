@@ -9,7 +9,7 @@ import ExportButtons from '../components/ExportButtons'
 
 export default function Building() {
   const { id } = useParams()
-  const { isAdmin } = useAuth()
+  const { canEdit } = useAuth()
   const [params, setParams] = useSearchParams()
   const [b, setB] = useState(null)
   const [cats, setCats] = useState([])
@@ -51,7 +51,7 @@ export default function Building() {
         <h1>🏢 {b.name}</h1>
         <div className="actions">
           <ExportButtons filter={{ building: b.id }} filename={`${b.stations.name}_${b.name}`} />
-          {isAdmin && <Link className="btn" to={`/admin/equipment/new?building=${b.id}`}>+ เพิ่มอุปกรณ์</Link>}
+          {canEdit(b.stations.id) && <Link className="btn" to={`/admin/equipment/new?building=${b.id}`}>+ เพิ่มอุปกรณ์</Link>}
         </div>
       </div>
 

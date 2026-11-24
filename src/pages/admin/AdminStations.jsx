@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../supabase'
+import { useAuth } from '../../auth'
 
 const emptySt = { code: '', name: '', location: '', note: '', sort: 0 }
 
 export default function AdminStations() {
+  const { isAdmin, canEdit } = useAuth()
   const [stations, setStations] = useState([])
   const [edit, setEdit] = useState(null)       // station being edited/added
   const [err, setErr] = useState('')
@@ -13,7 +15,7 @@ export default function AdminStations() {
     const { data, error } = await supabase.from('stations')
       .select('*, buildings(*, equipment(count))').order('sort').order('name')
     if (error) setErr(error.message)
-    setStations(data || [])
+    setStations((data || []).filter(s => canEdit(s.id)))
   }
   useEffect(() => { load() }, [])
 
@@ -64,7 +66,7 @@ export default function AdminStations() {
       <p><Link to="/admin">‹ จัดการข้อมูล</Link></p>
       <div className="row-between">
         <h1>สถานี / อาคาร</h1>
-        <button className="btn" onClick={() => setEdit({ ...emptySt })}>+ เพิ่มสถานี</button>
+        {isAdmin && <button className="btn" onClick={() => setEdit({ ...emptySt })}>+ เพิ่มสถานี</button>}
       </div>
       {err && <p className="error">{err}</p>}
 
@@ -90,8 +92,8 @@ export default function AdminStations() {
           <div className="row-between">
             <h3>{s.name} {s.code && <span className="muted small">({s.code})</span>}</h3>
             <div className="actions">
-              <button className="btn ghost sm" onClick={() => setEdit(s)}>แก้ไข</button>
-              <button className="btn danger sm" onClick={() => delStation(s)}>ลบ</button>
+              {isAdmin && <button className="btn ghost sm" onClick={() => setEdit(s)}>แก้ไข</button>}
+              {isAdmin && <button className="btn danger sm" onClick={() => delStation(s)}>ลบ</button>}
             </div>
           </div>
           <ul className="blist">

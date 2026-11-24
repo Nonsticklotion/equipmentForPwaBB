@@ -8,6 +8,9 @@ import Search from './pages/Search'
 import Report from './pages/Report'
 import Labels from './pages/Labels'
 import Backup from './pages/admin/Backup'
+import Users from './pages/admin/Users'
+import Audit from './pages/admin/Audit'
+import Account from './pages/Account'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -21,6 +24,19 @@ function AdminOnly({ children }) {
   const { isAdmin, loading } = useAuth()
   if (loading) return <p className="muted">กำลังโหลด…</p>
   return isAdmin ? children : <Navigate to="/login" replace />
+}
+
+// แอดมิน หรือ ผู้ดูแลสถานี
+function ManagerOnly({ children }) {
+  const { canManage, loading } = useAuth()
+  if (loading) return <p className="muted">กำลังโหลด…</p>
+  return canManage ? children : <Navigate to="/login" replace />
+}
+
+function LoggedIn({ children }) {
+  const { user, loading } = useAuth()
+  if (loading) return <p className="muted">กำลังโหลด…</p>
+  return user ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
@@ -38,11 +54,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/admin" element={<AdminOnly><AdminHome /></AdminOnly>} />
-        <Route path="/admin/stations" element={<AdminOnly><AdminStations /></AdminOnly>} />
+        <Route path="/admin" element={<ManagerOnly><AdminHome /></ManagerOnly>} />
+        <Route path="/admin/stations" element={<ManagerOnly><AdminStations /></ManagerOnly>} />
+        <Route path="/admin/users" element={<AdminOnly><Users /></AdminOnly>} />
+        <Route path="/admin/audit" element={<ManagerOnly><Audit /></ManagerOnly>} />
+        <Route path="/account" element={<LoggedIn><Account /></LoggedIn>} />
         <Route path="/admin/categories" element={<AdminOnly><AdminCategories /></AdminOnly>} />
-        <Route path="/admin/equipment/new" element={<AdminOnly><EquipmentForm /></AdminOnly>} />
-        <Route path="/admin/equipment/:id" element={<AdminOnly><EquipmentForm /></AdminOnly>} />
+        <Route path="/admin/equipment/new" element={<ManagerOnly><EquipmentForm /></ManagerOnly>} />
+        <Route path="/admin/equipment/:id" element={<ManagerOnly><EquipmentForm /></ManagerOnly>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

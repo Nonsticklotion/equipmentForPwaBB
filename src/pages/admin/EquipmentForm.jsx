@@ -4,10 +4,12 @@ import { supabase, STATUSES } from '../../supabase'
 import { allFields } from '../../lib/fields'
 import { deleteAllPhotos } from '../../lib/photos'
 import PhotoManager from '../../components/PhotoManager'
+import { useAuth } from '../../auth'
 
 const blank = { building_id: '', category_id: '', tag: '', name: '', status: 'ใช้งาน', note: '', specs: {} }
 
 export default function EquipmentForm() {
+  const { canEdit } = useAuth()
   const { id } = useParams()
   const [params] = useSearchParams()
   const nav = useNavigate()
@@ -24,7 +26,7 @@ export default function EquipmentForm() {
         supabase.from('stations').select('id, name, buildings(id, name)').order('sort').order('name'),
         supabase.from('categories').select('*').order('sort'),
       ])
-      setStations(s.data || []); setCats(c.data || [])
+      setStations((s.data || []).filter(x => canEdit(x.id))); setCats(c.data || [])
 
       let f = { ...blank }
       const copyFrom = params.get('copy')
@@ -35,12 +37,14 @@ export default function EquipmentForm() {
         if (params.get('building')) f.building_id = Number(params.get('building'))
         if (c.data?.length === 1) f.category_id = c.data[0].id
       }
-      const st = (s.data || []).find(x => x.buildings.some(b => b.id === f.building_id))
-      setStationId(st ? String(st.id) : '')
+      const st = (s.data || []).find(x => x.buildings.some(b => b.id === Number(f.building_id)))
+      if (id && st && !canEdit(st.id)) { setErr('ไม่มีสิทธิ์แก้ไขอุปกรณ์ของสถานีนี้'); setForm(false); return }
+      setStationId(st && canEdit(st.id) ? String(st.id) : '')
       setForm(f)
     })()
   }, [id])
 
+  if (form === false) return <p className="error">{err}</p>
   if (!form) return <p className="muted">กำลังโหลด…</p>
 
   const cat = cats.find(c => c.id === Number(form.category_id))

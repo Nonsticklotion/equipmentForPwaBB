@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabase'
+import Dashboard from '../components/Dashboard'
 
 export default function Home() {
   const [stations, setStations] = useState(null)
@@ -21,7 +22,9 @@ export default function Home() {
 
   return (
     <>
-      <h1>สถานี</h1>
+      <h1>ภาพรวม</h1>
+      <Dashboard stations={stations} />
+      <h2>สถานี</h2>
       {stations.length === 0 && <p className="muted">ยังไม่มีสถานี — แอดมินเพิ่มได้ที่เมนู "จัดการข้อมูล"</p>}
       <div className="grid">
         {stations.map(s => {

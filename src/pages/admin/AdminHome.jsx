@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import StatusBadge from '../../components/StatusBadge'
 import ExportButtons from '../../components/ExportButtons'
+import { useAuth } from '../../auth'
 
 export default function AdminHome() {
+  const { isAdmin, canEdit } = useAuth()
   const [rows, setRows] = useState([])
   const [stations, setStations] = useState([])
   const [cats, setCats] = useState([])
@@ -17,7 +19,12 @@ export default function AdminHome() {
         .order('updated_at', { ascending: false }),
       supabase.from('stations').select('id, name, buildings(id, name)').order('sort').order('name'),
       supabase.from('categories').select('id, name, icon').order('sort'),
-    ]).then(([a, b, c]) => { setRows(a.data || []); setStations(b.data || []); setCats(c.data || []) })
+    ]).then(([a, b, c]) => {
+      // ผู้ดูแลสถานีเห็นเฉพาะสถานีของตัวเอง
+      setRows((a.data || []).filter(r => canEdit(r.buildings?.station_id)))
+      setStations((b.data || []).filter(s => canEdit(s.id)))
+      setCats(c.data || [])
+    })
   }, [])
 
   const buildings = stations.find(s => String(s.id) === f.station)?.buildings || []
@@ -30,11 +37,13 @@ export default function AdminHome() {
   return (
     <>
       <div className="row-between">
-        <h1>จัดการข้อมูล</h1>
+        <h1>จัดการข้อมูล{!isAdmin && <span className="muted small"> · เฉพาะสถานีที่ดูแล</span>}</h1>
         <div className="actions">
           <Link className="btn ghost" to="/admin/stations">สถานี / อาคาร</Link>
-          <Link className="btn ghost" to="/admin/categories">หมวดอุปกรณ์</Link>
-          <Link className="btn ghost" to="/admin/backup">💾 Backup</Link>
+          {isAdmin && <Link className="btn ghost" to="/admin/categories">หมวดอุปกรณ์</Link>}
+          {isAdmin && <Link className="btn ghost" to="/admin/users">👥 ผู้ใช้ / สิทธิ์</Link>}
+          <Link className="btn ghost" to="/admin/audit">📜 ประวัติการแก้ไข</Link>
+          {isAdmin && <Link className="btn ghost" to="/admin/backup">💾 Backup</Link>}
           <Link className="btn" to="/admin/equipment/new">+ เพิ่มอุปกรณ์</Link>
         </div>
       </div>

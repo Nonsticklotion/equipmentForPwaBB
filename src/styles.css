@@ -251,3 +251,38 @@ tr.clickable { cursor: pointer; }
 .spark svg { width: 100%; height: 70px; display: block; margin: .3rem 0; }
 .spark-foot { display: flex; justify-content: space-between; gap: .4rem; font-size: .72rem; flex-wrap: wrap; }
 @media print { .mlog, .spark { break-inside: avoid; } }
+
+/* roles */
+.role.editor { background: #9fd3b4; color: #0d3b22; font-weight: 600; }
+
+/* audit */
+.audit td { vertical-align: top; }
+.changes { margin: 0; padding-left: 1rem; font-size: .85rem; }
+.changes del { color: var(--bad); opacity: .75; }
+.collapse-head { padding: 0; width: 100%; text-align: left; }
+.collapse-head h3 { margin: 0; }
+
+/* users */
+.user-card.dirty { border-color: var(--warn); }
+.station-picks { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: center; margin: .7rem 0; padding: .6rem; background: #f7f9fb; border-radius: 8px; }
+.user-card .actions { margin-top: .6rem; }
+
+/* dashboard */
+.dash { margin-bottom: 1.5rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; margin-bottom: .8rem; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; }
+.kpi-v { font-size: 1.7rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-v small { font-size: .9rem; font-weight: 500; color: var(--muted); }
+.kpi-l { color: var(--muted); font-size: .85rem; }
+.kpi.warn { border-color: #f0c2bd; background: #fff7f6; }
+.kpi.warn .kpi-v { color: var(--bad); }
+.status-chips { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .8rem; }
+.stackbar { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: #eef1f4; min-width: 80px; }
+.stackbar span.ok { background: var(--ok); } .stackbar span.info { background: var(--info); }
+.stackbar span.bad { background: var(--bad); } .stackbar span.warn { background: var(--warn); } .stackbar span.off { background: var(--off); }
+.dash-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.dash-cols .panel { margin: 0; }
+.dash-list { list-style: none; padding: 0; margin: 0; }
+.dash-list li { padding: .4rem 0; border-bottom: 1px solid #eef1f4; display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
+.dash-list li:last-child { border-bottom: 0; }
+.dash-list .badge, .dash-list .kind { margin-left: auto; }
