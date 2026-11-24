@@ -21,6 +21,10 @@ export default function Layout() {
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="ค้นหา รหัส / ชื่ออุปกรณ์ / ยี่ห้อ…" />
         </form>
         <nav className="topnav">
+          <span className="who" title={user?.email || 'ยังไม่ได้เข้าสู่ระบบ'}>
+            👤 {user ? user.email.split('@')[0] : 'Guest'}
+            <span className={`role ${isAdmin ? 'admin' : ''}`}>{user ? (isAdmin ? 'แอดมิน' : 'ผู้ใช้') : 'ผู้เยี่ยมชม'}</span>
+          </span>
           {isAdmin && <NavLink to="/admin">จัดการข้อมูล</NavLink>}
           {user && <NavLink to="/reset-password">เปลี่ยนรหัสผ่าน</NavLink>}
           {user

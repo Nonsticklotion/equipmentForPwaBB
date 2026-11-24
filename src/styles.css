@@ -155,3 +155,8 @@ label.btn.disabled { opacity: .6; pointer-events: none; }
 .lightbox-bar button { background: rgba(255,255,255,.12); color: #fff; border: 0; border-radius: 6px; padding: .3rem .8rem; font: inherit; cursor: pointer; }
 .lightbox-bar a { color: #9cc3ec; }
 @media print { .photo-group { break-inside: avoid; } .thumb { width: 160px; height: 160px; } }
+
+/* user badge */
+.who { display: inline-flex; align-items: center; gap: .4rem; color: #fff; font-size: .9rem; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.role { font-size: .72rem; padding: .05rem .5rem; border-radius: 99px; background: rgba(255,255,255,.15); color: #cfe0f2; }
+.role.admin { background: #f0b429; color: #3d2a00; font-weight: 600; }
