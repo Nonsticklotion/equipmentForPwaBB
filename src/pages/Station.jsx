@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Crumbs from '../components/Crumbs'
+import ExportButtons from '../components/ExportButtons'
 
 export default function Station() {
   const { id } = useParams()
@@ -23,7 +24,10 @@ export default function Station() {
   return (
     <>
       <Crumbs items={[{ label: st.name }]} />
-      <h1>{st.name}</h1>
+      <div className="row-between">
+        <h1>{st.name}</h1>
+        <ExportButtons filter={{ station: st.id }} filename={st.name} />
+      </div>
       {(st.location || st.note) && <p className="muted">{[st.location, st.note].filter(Boolean).join(' · ')}</p>}
       <h2>อาคาร</h2>
       {buildings.length === 0 && <p className="muted">ยังไม่มีอาคาร</p>}

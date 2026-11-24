@@ -5,6 +5,7 @@ import Station from './pages/Station'
 import Building from './pages/Building'
 import Equipment from './pages/Equipment'
 import Search from './pages/Search'
+import Report from './pages/Report'
 import Login from './pages/Login'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/building/:id" element={<Building />} />
         <Route path="/equipment/:id" element={<Equipment />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/report" element={<Report />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />

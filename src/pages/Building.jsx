@@ -5,6 +5,7 @@ import Crumbs from '../components/Crumbs'
 import StatusBadge from '../components/StatusBadge'
 import { listFields, fmt, label } from '../lib/fields'
 import { useAuth } from '../auth'
+import ExportButtons from '../components/ExportButtons'
 
 export default function Building() {
   const { id } = useParams()
@@ -48,7 +49,10 @@ export default function Building() {
       <Crumbs items={[{ label: b.stations.name, to: `/station/${b.stations.id}` }, { label: b.name }]} />
       <div className="row-between">
         <h1>🏢 {b.name}</h1>
-        {isAdmin && <Link className="btn" to={`/admin/equipment/new?building=${b.id}`}>+ เพิ่มอุปกรณ์</Link>}
+        <div className="actions">
+          <ExportButtons filter={{ building: b.id }} filename={`${b.stations.name}_${b.name}`} />
+          {isAdmin && <Link className="btn" to={`/admin/equipment/new?building=${b.id}`}>+ เพิ่มอุปกรณ์</Link>}
+        </div>
       </div>
 
       {groups.length === 0 && <p className="muted">ยังไม่มีอุปกรณ์ในอาคารนี้</p>}

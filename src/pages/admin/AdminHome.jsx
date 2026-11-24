@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import StatusBadge from '../../components/StatusBadge'
+import ExportButtons from '../../components/ExportButtons'
 
 export default function AdminHome() {
   const [rows, setRows] = useState([])
@@ -51,6 +52,7 @@ export default function AdminHome() {
           {cats.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
         </select>
         <span className="muted small">{list.length} รายการ</span>
+        <ExportButtons filter={{ station: f.station, building: f.building, cat: f.cat }} filename="equipment" />
       </div>
 
       <div className="table-wrap">
