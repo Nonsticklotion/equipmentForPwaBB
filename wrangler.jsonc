@@ -5,7 +5,8 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/__ping"]
   },
   // ปลุก Supabase ทุกวัน 03:00 น. เวลาไทย (20:00 UTC)
   "triggers": {
